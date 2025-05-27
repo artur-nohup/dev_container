@@ -1,0 +1,72 @@
+services:
+  # Default configuration 
+  claude-dev:
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:
+        MCP_SERVERS: ${MCP_SERVERS:-puppeteer,github}
+        GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    image: claude-dev:latest
+    container_name: claude-dev
+    pull_policy: build
+    stdin_open: true
+    tty: true
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./workspace:/workspace
+      - claude-dev-auth:/home/claude/.claude
+
+  # Full stack with all MCP servers
+  claude-full:
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:
+        MCP_SERVERS: ${MCP_SERVERS_FULL:-puppeteer,filesystem,github}
+        GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    image: claude-full:latest
+    container_name: claude-full
+    pull_policy: build
+    stdin_open: true
+    tty: true
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./workspace:/workspace
+      - claude-full-auth:/home/claude/.claude
+    profiles:
+      - full
+
+  # Custom configuration
+  claude-custom:
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:
+        MCP_SERVERS: ${CUSTOM_MCP_SERVERS:-puppeteer}
+        GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    image: claude-custom:latest
+    container_name: claude-custom
+    pull_policy: build
+    stdin_open: true
+    tty: true
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./workspace:/workspace
+      - claude-custom-auth:/home/claude/.claude
+    profiles:
+      - custom
+
+volumes:
+  claude-dev-auth:
+  claude-full-auth:
+  claude-custom-auth:

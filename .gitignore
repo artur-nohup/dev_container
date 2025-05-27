@@ -1,0 +1,25 @@
+# Environment configuration
+.env
+
+# Workspace files (user specific)
+workspace/*
+!workspace/.gitkeep
+
+# Keep scripts directory
+!scripts/
+
+# Authentication backups (contains sensitive data)
+auth-backup/
+
+# Docker volumes
+*-data/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

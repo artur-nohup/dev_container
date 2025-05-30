@@ -47,6 +47,14 @@
         "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
       },
       "requires": ["SLACK_BOT_TOKEN", "SLACK_TEAM_ID"]
+    },
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@felores/perplexity-sonar-mcp"],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      },
+      "requires": ["PERPLEXITY_API_KEY"]
     }
   }
 }

@@ -45,13 +45,12 @@ RUN echo '{"permissions":{"allow":["*"]}}' > /home/claude/.claude/settings.json 
     chown claude:claude /home/claude/.claude/settings.json
 
 # Copy scripts and configuration
-COPY scripts/setup-mcp.sh /usr/local/bin/setup-mcp
 COPY scripts/setup-mcp-auto.sh /usr/local/bin/setup-mcp-auto
 COPY scripts/mcp-config.json /usr/local/bin/mcp-config.json
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY scripts/claude-wrapper.sh /usr/local/bin/claude-auto
 COPY scripts/claude-session.sh /usr/local/bin/claude-session
-RUN chmod +x /usr/local/bin/setup-mcp /usr/local/bin/setup-mcp-auto /usr/local/bin/entrypoint.sh /usr/local/bin/claude-auto /usr/local/bin/claude-session
+RUN chmod +x /usr/local/bin/setup-mcp-auto /usr/local/bin/entrypoint.sh /usr/local/bin/claude-auto /usr/local/bin/claude-session
 
 # Set environment for web automation
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true

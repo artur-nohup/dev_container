@@ -2,12 +2,44 @@
 
 Docker development container with Claude Code CLI and configurable MCP (Model Context Protocol) servers. Built for development workflows with MCP configuration baked in at build time for clean multi-container deployments.
 
+## Repository Structure
+
+```
+dev_container/
+├── pub/                    # Public container (configurable via environment)
+│   ├── dockerfile          # Main dockerfile
+│   ├── docker-compose.yml  # Docker compose configuration
+│   ├── scripts/            # Setup and utility scripts
+│   └── .env.example        # Example environment configuration
+│
+└── private/                # Private container (embedded secrets)
+    ├── dockerfile          # Dockerfile with hardcoded tokens
+    ├── entrypoint.sh       # Entrypoint with embedded configuration
+    └── build.sh            # Build script with security warnings
+```
+
+## Choose Your Version
+
+### Public Container (`pub/`)
+- Configuration via environment variables
+- Suitable for public repositories
+- Requires `.env` file setup
+- Safe to share and distribute
+
+### Private Container (`private/`)
+- All secrets hardcoded in image
+- ⚠️ **NEVER push to public repositories**
+- No configuration needed
+- For personal/trusted use only
+
 ## Quick Start
 
 Choose your deployment option:
 
-### Option 1: Default Setup
+### Option 1: Public Container (Configurable)
 ```bash
+cd pub/
+
 # Create .env file
 cp .env.example .env
 # Edit .env to:
@@ -18,24 +50,29 @@ docker-compose up -d claude-dev
 docker exec -it claude-dev bash
 ```
 
-### Option 2: Full stack (All MCP servers)
+### Option 2: Private Container (All-in-One)
 ```bash
-# Set GitHub token in .env first
-echo "GITHUB_TOKEN=your_token_here" > .env
-docker-compose --profile full up -d claude-full
-docker exec -it claude-full bash
+cd private/
+
+# Build with embedded secrets (WARNING: Do not push to public repos!)
+./build.sh
+
+# Run directly
+docker run -it arturrenzenbrink/dev-priv:latest
 ```
 
-### Option 3: Custom configuration
+### Option 3: Use Pre-built Images
 ```bash
-# Configure in .env
-echo "CUSTOM_MCP_SERVERS=puppeteer,filesystem" > .env
-docker-compose --profile custom up -d claude-custom
-docker exec -it claude-custom bash
+# Public image (requires configuration)
+docker run -it -e GITHUB_TOKEN=your_token_here arturrenzenbrink/dev:latest
+
+# Private image (everything pre-configured)
+docker run -it arturrenzenbrink/dev-priv:latest
 ```
 
 ### Option 4: Direct build with custom args
 ```bash
+cd pub/
 docker build --build-arg MCP_SERVERS=puppeteer,filesystem -t my-claude .
 docker run -it --cap-add=SYS_ADMIN --security-opt=seccomp:unconfined my-claude
 ```
@@ -99,10 +136,7 @@ claude mcp list
 
 ### Manual Setup (if needed)
 ```bash
-# Run the setup script manually
-setup-mcp
-
-# Or add servers individually
+# Add servers individually
 claude mcp add puppeteer --scope user -- npx -y @modelcontextprotocol/server-puppeteer
 ```
 
@@ -172,8 +206,11 @@ dev_container/
 ├── .env.example           # Environment variables
 ├── .gitignore             # Git ignore patterns
 ├── scripts/               # Container setup scripts
+│   ├── claude-session.sh  # Persistent session manager
+│   ├── claude-wrapper.sh  # Auto-accept prompts wrapper
 │   ├── entrypoint.sh      # Auto-configures MCP on startup
-│   └── setup-mcp.sh       # Manual MCP setup script
+│   ├── mcp-config.json    # MCP server configurations
+│   └── setup-mcp-auto.sh  # Automatic MCP setup
 └── workspace/             # Your working directory
 ```
 
@@ -263,9 +300,6 @@ chromium --no-sandbox --headless --dump-dom https://example.com
 
 ### MCP Configuration
 ```bash
-# Configure MCP servers (run once after authentication)
-setup-mcp
-
 # View configured servers
 claude mcp list
 
